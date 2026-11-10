@@ -37,14 +37,15 @@ const clients = new Set(); // { res, view, seat }
 // which voice modes this PC can play right now
 function voiceModes(det) {
   const py = det.python.ready && det.python.edgeTts;
-  const vajaKey = fs.existsSync(P.VAJAX_KEY_FILE) && !!fs.readFileSync(P.VAJAX_KEY_FILE, 'utf8').trim();
-  const orKey = fs.existsSync(P.OPENROUTER_KEY_FILE) && !!fs.readFileSync(P.OPENROUTER_KEY_FILE, 'utf8').trim();
+  const vajaKey = (fs.existsSync(P.VAJAX_KEY_FILE) && !!fs.readFileSync(P.VAJAX_KEY_FILE, 'utf8').trim()) || !!process.env.VAJAX_API_KEY;
+  const orKey = (fs.existsSync(P.OPENROUTER_KEY_FILE) && !!fs.readFileSync(P.OPENROUTER_KEY_FILE, 'utf8').trim()) || !!process.env.OPENROUTER_API_KEY;
+  const ffmpegOk = det.ffmpeg.ready || process.env.VERCEL; // on cloud Vercel or local with ffmpeg
   return {
     off: true,
     free: py,
-    battle: py && vajaKey && orKey && det.ffmpeg.ready,
-    vaja: py && vajaKey && det.ffmpeg.ready,
-    heygen: py && orKey && det.ffmpeg.ready,
+    battle: (py || process.env.VERCEL) && vajaKey && orKey && ffmpegOk,
+    vaja: (py || process.env.VERCEL) && vajaKey && ffmpegOk,
+    heygen: (py || process.env.VERCEL) && orKey && ffmpegOk,
     gemini: py && det.gemini.ready && det.ffmpeg.ready
   };
 }

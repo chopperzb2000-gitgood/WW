@@ -153,7 +153,9 @@ VAJA9_KEY_ENV = "VREKI_VAJAX_KEY_FILE"
 
 
 def vaja9_key():
-    """Read VAJA9 API key from file (set via VREKI_VAJAX_KEY_FILE env, like other keys)."""
+    """Read VAJA9 API key from file or environment variable."""
+    if os.environ.get("VAJAX_API_KEY"):
+        return os.environ.get("VAJAX_API_KEY").strip()
     kf = os.environ.get(VAJA9_KEY_ENV) or ""
     if kf and Path(kf).is_file():
         return Path(kf).read_text(encoding="utf-8").strip()
@@ -213,7 +215,9 @@ HEYGEN_KEY_ENV = "VREKI_OPENROUTER_KEY_FILE"
 
 
 def heygen_key():
-    """Read OpenRouter API key for HeyGen TTS from file."""
+    """Read OpenRouter API key for HeyGen TTS from env or file."""
+    if os.environ.get("OPENROUTER_API_KEY"):
+        return os.environ.get("OPENROUTER_API_KEY").strip()
     kf = os.environ.get(HEYGEN_KEY_ENV) or ""
     if kf and Path(kf).is_file():
         return Path(kf).read_text(encoding="utf-8").strip()
