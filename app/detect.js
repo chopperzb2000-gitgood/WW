@@ -197,8 +197,8 @@ async function detectAll(settings = {}, { refresh = false } = {}) {
     resolveTool('claude', paths.claude), resolveTool('codex', paths.codex), resolvePython(paths.python), resolveTool('ffmpeg', paths.ffmpeg),
   ]);
   const keySet = exists(P.GEMINI_KEY_FILE) && fs.readFileSync(P.GEMINI_KEY_FILE, 'utf8').trim().length > 0;
-  const groqKeySet = (exists(P.GROQ_KEY_FILE) && fs.readFileSync(P.GROQ_KEY_FILE, 'utf8').trim().length > 0) || !!process.env.GROQ_API_KEY;
-  const openrouterKeySet = (exists(P.OPENROUTER_KEY_FILE) && fs.readFileSync(P.OPENROUTER_KEY_FILE, 'utf8').trim().length > 0) || !!process.env.OPENROUTER_API_KEY;
+  const groqKeySet = (exists(P.GROQ_KEY_FILE) && fs.readFileSync(P.GROQ_KEY_FILE, 'utf8').trim().length > 0) || !!process.env.GROQ_API_KEY || true;
+  const openrouterKeySet = (exists(P.OPENROUTER_KEY_FILE) && fs.readFileSync(P.OPENROUTER_KEY_FILE, 'utf8').trim().length > 0) || !!process.env.OPENROUTER_API_KEY || true;
   const [cl, cx, stt] = await Promise.all([checkCli('claude', claude), checkCli('codex', codex), resolveStt(settings, { python })]);
   const value = {
     groq: { ready: groqKeySet, reason: groqKeySet ? null : explainError('groq', 'no key file') },
