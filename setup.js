@@ -12,10 +12,8 @@
   const HOW = { groq: 'ผ่าน Groq Cloud API (ฟรีและเร็วมาก)', openrouter: 'ผ่าน OpenRouter API (โมเดลหลากหลาย)', claude: 'ผ่าน Claude Code (แพ็ก Claude)', codex: 'ผ่าน Codex (บัญชี ChatGPT)', gemini: 'ผ่านคีย์ API ของ Gemini' };
   const VOICE_TH = {
     off: 'ปิดเสียง',
+    heygen: 'เสียง HeyGen (OpenRouter - ฟรี)',
     free: 'เสียงฟรี (Edge)',
-    battle: 'Groq(AI for Thai) vs OpenRouter(HeyGen)',
-    vaja: 'เสียง AI for Thai (VAJA)',
-    heygen: 'เสียง HeyGen (OpenRouter)',
     gemini: 'เสียง Gemini'
   };
 
@@ -67,8 +65,8 @@
     return 'ที่นั่ง: ' + Object.entries(split(ids)).map(([id, n]) => `${NAME[id]} ${n}`).join(' · ');
   }
   function voiceNow() {
-    const want = settings?.voice || 'battle';
-    const order = ['battle', 'vaja', 'heygen', 'gemini', 'free', 'off'];
+    const want = settings?.voice || 'heygen';
+    const order = ['heygen', 'free', 'gemini', 'off'];
     for (const m of order.slice(order.indexOf(want))) if (info?.voiceModes?.[m]) return m;
     return 'off';
   }
@@ -127,11 +125,10 @@
       r.disabled = !info.voiceModes[r.value];
     }
     const notes = [];
-    if (!info.voiceModes.battle) notes.push('โหมดแข่ง Groq vs OpenRouter ต้องมีคีย์ทั้ง AI for Thai และ OpenRouter');
-    if (!info.voiceModes.vaja) notes.push(!info.vajaxKeySet ? 'เสียง VAJA ต้องมีคีย์ AI for Thai' : '');
+    if (!info.voiceModes.heygen) notes.push('เสียง HeyGen ต้องมีคีย์ OpenRouter ก่อน');
     if (!info.voiceModes.free) notes.push(info.detect.python.reason || 'เสียงฟรีต้องใช้ Python + edge-tts');
     if (!info.voiceModes.gemini) notes.push(!info.detect.gemini.ready ? 'เสียง Gemini ต้องใส่คีย์ Gemini ก่อน' : (!info.detect.ffmpeg.ready ? 'เสียง Gemini ต้องติดตั้ง ffmpeg' : ''));
-    notes.push('รายละเอียด: ฝั่ง Groq = AI for Thai (VAJA), ฝั่ง OpenRouter = HeyGen (OpenRouter)');
+    notes.push('ใช้เสียงฟรีของ HeyGen ผ่าน OpenRouter ครบทั้ง 6 ตัวละคร');
     $('#voiceNote').textContent = notes.filter(Boolean).join(' · ');
     const mic = info.mic || { ready: false, reason: '' };
     $('#micToggle').checked = !!settings.mic && mic.ready;

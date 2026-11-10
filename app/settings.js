@@ -7,14 +7,14 @@ const path = require('path');
 const P = require('./paths');
 
 const COMPANIES = ['groq', 'openrouter', 'claude', 'codex', 'gemini'];
-const VOICES = ['off', 'free', 'battle', 'vaja', 'heygen', 'gemini'];
+const VOICES = ['off', 'heygen', 'free', 'gemini'];
 const EFFORTS = ['low', 'medium', 'high', 'xhigh'];
 
 const DEFAULTS = Object.freeze({
   providers: [],
   models: { groq: 'openai/gpt-oss-120b', openrouter: 'deepseek/deepseek-chat', claude: 'claude-opus-5-5', codex: 'gpt-6.1-sol', gemini: 'gemini-4-argon' },
   effort: { claude: 'medium', codex: 'medium' },
-  voice: 'free',
+  voice: 'heygen',
   showCompanies: false,
   mic: false, // push-to-talk when you play (NVIDIA cards only)
   paths: { claude: null, codex: null, python: null, ffmpeg: null, sttPython: null },

@@ -37,21 +37,18 @@ const clients = new Set(); // { res, view, seat }
 // which voice modes this PC can play right now
 function voiceModes(det) {
   const py = det.python.ready && det.python.edgeTts;
-  const vajaKey = (fs.existsSync(P.VAJAX_KEY_FILE) && !!fs.readFileSync(P.VAJAX_KEY_FILE, 'utf8').trim()) || !!process.env.VAJAX_API_KEY;
   const orKey = (fs.existsSync(P.OPENROUTER_KEY_FILE) && !!fs.readFileSync(P.OPENROUTER_KEY_FILE, 'utf8').trim()) || !!process.env.OPENROUTER_API_KEY;
-  const ffmpegOk = det.ffmpeg.ready || process.env.VERCEL; // on cloud Vercel or local with ffmpeg
+  const ffmpegOk = det.ffmpeg.ready || process.env.VERCEL;
   return {
     off: true,
-    free: py,
-    battle: (py || process.env.VERCEL) && vajaKey && orKey && ffmpegOk,
-    vaja: (py || process.env.VERCEL) && vajaKey && ffmpegOk,
     heygen: (py || process.env.VERCEL) && orKey && ffmpegOk,
+    free: py,
     gemini: py && det.gemini.ready && det.ffmpeg.ready
   };
 }
 // the asked-for mode, or the next one down that works
 function pickVoice(want, modes) {
-  const order = ['battle', 'vaja', 'heygen', 'gemini', 'free', 'off'];
+  const order = ['heygen', 'free', 'gemini', 'off'];
   for (const m of order.slice(Math.max(0, order.indexOf(want)))) if (modes[m]) return m;
   return 'off';
 }
@@ -61,7 +58,6 @@ function voiceFor(mode, det) {
     voice = new Voice({ ...CONFIG.voice, python: det.python.path, script: path.join(__dirname, 'tts.py'),
       env: {
         VREKI_GEMINI_KEY_FILE: P.GEMINI_KEY_FILE,
-        VREKI_VAJAX_KEY_FILE: P.VAJAX_KEY_FILE,
         VREKI_OPENROUTER_KEY_FILE: P.OPENROUTER_KEY_FILE,
         VREKI_TTS_USAGE_LOG: P.TTS_USAGE_LOG,
         ...(det.ffmpeg.path ? { VREKI_FFMPEG: det.ffmpeg.path } : {})
@@ -69,21 +65,10 @@ function voiceFor(mode, det) {
     }, log);
   }
   return {
-    say: (char, text, out, extra = {}) => {
+    say: (char, text, out) => {
       let over = {};
-      if (mode === 'battle') {
-        // Groq ใช้ aiforthai (vaja9), OpenRouter ใช้ heygen (openrouter)
-        const p = extra.provider;
-        if (p === 'openrouter') over = { engine: 'heygen' };
-        else if (p === 'groq') over = { engine: 'vaja9' };
-        else over = { engine: 'vaja9' };
-      } else if (mode === 'vaja') {
-        over = { engine: 'vaja9' };
-      } else if (mode === 'heygen') {
-        over = { engine: 'heygen' };
-      } else if (mode === 'free') {
-        over = { engine: 'edge' };
-      }
+      if (mode === 'heygen') over = { engine: 'heygen' };
+      else if (mode === 'free') over = { engine: 'edge' };
       return voice.say(char, text, out, over);
     }
   };
