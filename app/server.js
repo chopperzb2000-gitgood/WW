@@ -173,6 +173,15 @@ function listGames() {
 // could otherwise POST here (a text/plain "simple request" skips CORS) or read it through
 // DNS rebinding: refuse foreign Host / Origin, and POSTs that are not JSON.
 function blocked(req) {
+  // If running on cloud/Vercel or custom host
+  if (process.env.VERCEL || process.env.NODE_ENV === 'production' || process.env.ALLOW_ALL_HOSTS) {
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      const type = String(req.headers['content-type'] || '');
+      const wavOk = req.url === '/api/stt' || req.url.startsWith('/api/stt?');
+      if (!/^application\/json\b/i.test(type) && !(wavOk && /^audio\/wav\b/i.test(type))) return [415, 'json only'];
+    }
+    return null;
+  }
   const port = server.address()?.port;
   const own = [`localhost:${port}`, `127.0.0.1:${port}`];
   if (!own.includes(String(req.headers.host || '').toLowerCase())) return [403, 'forbidden host'];
